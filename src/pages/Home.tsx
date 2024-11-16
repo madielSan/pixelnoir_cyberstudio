@@ -55,7 +55,7 @@ export const Home: React.FC = () => {
       <div 
         className="absolute inset-0 opacity-20"
         style={{
-          backgroundImage: 'src("../public/images/madielsan_Ultra-realistic_cyberpunk_cityscape_at_night_bustling_ab7acdd1-47c6-47fe-965c-e65af0729e04.png")',
+          backgroundImage: 'url("../../public/images/madielsan_Ultra-realistic_cyberpunk_cityscape_at_night_bustling_ab7acdd1-47c6-47fe-965c-e65af0729e04.png")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           filter: 'contrast(120%) brightness(50%)'
