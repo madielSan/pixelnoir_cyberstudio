@@ -1,0 +1,11 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "contacts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "createdAt", "order": "DESC" }
+      ]
+    }
+  ]
+}
