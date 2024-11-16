@@ -31,7 +31,7 @@ export const addArtwork = async (artwork: Omit<Artwork, 'id'>) => {
     return docRef.id;
   } catch (error) {
     console.error('Error adding artwork:', error);
-    throw error;
+    throw new Error('Failed to add artwork to database');
   }
 };
 
@@ -45,7 +45,7 @@ export const getArtworks = async (): Promise<Artwork[]> => {
     } as Artwork));
   } catch (error) {
     console.error('Error getting artworks:', error);
-    throw error;
+    throw new Error('Failed to fetch artworks');
   }
 };
 
@@ -70,33 +70,60 @@ export const deleteArtwork = async (id: string) => {
     await deleteDoc(doc(db, COLLECTION_NAME, id));
   } catch (error) {
     console.error('Error deleting artwork:', error);
-    throw error;
+    throw new Error('Failed to delete artwork');
   }
 };
 
 export const uploadImage = async (file: File) => {
   checkAuth();
+  
+  // Validate file type
+  if (!file.type.match(/^(image|video)\//)) {
+    throw new Error('Invalid file type. Only images and videos are allowed.');
+  }
+
+  // Validate file size (100MB max)
+  const MAX_SIZE = 100 * 1024 * 1024; // 100MB in bytes
+  if (file.size > MAX_SIZE) {
+    throw new Error('File size exceeds 100MB limit.');
+  }
+
   try {
-    // Create a unique filename using timestamp
+    // Create a unique filename using timestamp and random string
     const timestamp = new Date().getTime();
-    const uniqueFileName = `${timestamp}_${file.name}`;
+    const randomString = Math.random().toString(36).substring(2, 15);
+    const fileExtension = file.name.split('.').pop();
+    const uniqueFileName = `${timestamp}_${randomString}.${fileExtension}`;
+    
+    // Create storage reference
     const storageRef = ref(storage, `artworks/${auth.currentUser!.uid}/${uniqueFileName}`);
     
-    // Upload the file with metadata
+    // Upload metadata
     const metadata = {
       contentType: file.type,
       customMetadata: {
+        originalName: file.name,
         uploadedBy: auth.currentUser!.email || 'unknown',
         uploadedAt: new Date().toISOString()
       }
     };
     
-    await uploadBytes(storageRef, file, metadata);
-    const downloadURL = await getDownloadURL(storageRef);
+    // Upload file with metadata
+    const snapshot = await uploadBytes(storageRef, file, metadata);
+    
+    // Get download URL
+    const downloadURL = await getDownloadURL(snapshot.ref);
     
     return downloadURL;
   } catch (error) {
     console.error('Error uploading file:', error);
-    throw new Error(error instanceof Error ? error.message : 'Failed to upload file');
+    if (error instanceof Error) {
+      if (error.message.includes('unauthorized')) {
+        throw new Error('Unauthorized. Please check if you are logged in.');
+      } else if (error.message.includes('quota')) {
+        throw new Error('Storage quota exceeded. Please contact administrator.');
+      }
+    }
+    throw new Error('Failed to upload file. Please try again.');
   }
 };
