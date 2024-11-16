@@ -2,11 +2,12 @@ import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GlitchText } from '../components/GlitchText';
 import { NeonButton } from '../components/NeonButton';
-import { VideoSection } from '../components/VideoSection';
+import { Play } from 'lucide-react';
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -90,7 +91,34 @@ export const Home: React.FC = () => {
       </div>
 
       {/* Video Section */}
-      <VideoSection />
+      <section className="relative py-24 bg-gray-950">
+        <div className="container mx-auto px-4">
+          <div className="max-w-5xl mx-auto">
+            <div className="relative aspect-video rounded-lg overflow-hidden cyber-border">
+              <video
+                ref={videoRef}
+                className="w-full h-full object-cover"
+                controls
+                poster="/images/video-thumbnail.jpg"
+                src="/images/hero-video.mp4"
+              >
+                <source src="/images/Pixel_Noir_Vitrine.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+              
+              {/* Play button overlay */}
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-0">
+                <button 
+                  className="p-6 rounded-full bg-cyan-500/20 border border-cyan-400 text-cyan-400 transition-transform duration-300 hover:scale-110"
+                  onClick={() => videoRef.current?.play()}
+                >
+                  <Play className="w-12 h-12" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </>
   );
 };
