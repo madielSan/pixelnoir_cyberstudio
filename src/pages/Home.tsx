@@ -44,14 +44,15 @@ export const Home: React.FC = () => {
       >
         {/* Cyberpunk grid background */}
         <div 
-        className="absolute inset-0 opacity-20"
-        style={{
-          backgroundImage: 'url("https://cdn.midjourney.com/e2d1c2a9-2945-4360-98a3-0e5633dc0853/0_1.png")',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          filter: 'contrast(120%) brightness(50%)'
-        }}
-      />
+          className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage: `
+              linear-gradient(to right, rgba(6,182,212,0.1) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(6,182,212,0.1) 1px, transparent 1px)
+            `,
+            backgroundSize: '50px 50px'
+          }}
+        />
 
         {/* Main content */}
         <div className="relative z-10 text-center px-4 animate-fade-in">
