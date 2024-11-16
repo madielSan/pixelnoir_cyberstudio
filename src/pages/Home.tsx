@@ -6,6 +6,7 @@ import { NeonButton } from '../components/NeonButton';
 export const Home: React.FC = () => {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -40,6 +41,20 @@ export const Home: React.FC = () => {
         `
       }}
     >
+      {/* Video Background */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden">
+        <video
+          ref={videoRef}
+          className="absolute w-full h-full object-cover opacity-30"
+          autoPlay
+          loop
+          muted
+          playsInline
+          src="/images/Pixel_Noir_Vitrine.mp4"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-gray-950/80 via-gray-950/50 to-gray-950/80" />
+      </div>
+
       {/* Cyberpunk grid background */}
       <div 
         className="absolute inset-0 opacity-20"
@@ -49,16 +64,6 @@ export const Home: React.FC = () => {
             linear-gradient(to bottom, rgba(6,182,212,0.1) 1px, transparent 1px)
           `,
           backgroundSize: '50px 50px'
-        }}
-      />
-
-      <div 
-        className="absolute inset-0 opacity-20"
-        style={{
-          backgroundImage: 'url("https://cdn.midjourney.com/e2d1c2a9-2945-4360-98a3-0e5633dc0853/0_1.png")',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          filter: 'contrast(120%) brightness(50%)'
         }}
       />
 
@@ -94,7 +99,6 @@ export const Home: React.FC = () => {
       <div className="absolute bottom-0 right-0 w-32 h-32 border-r-2 border-b-2 border-cyan-500 opacity-50" />
 
       {/* Gradient overlays */}
-      <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-transparent to-gray-950 opacity-50" />
       <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-gray-950 to-transparent" />
     </div>
   );
