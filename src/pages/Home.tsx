@@ -55,7 +55,7 @@ export const Home: React.FC = () => {
       <div 
         className="absolute inset-0 opacity-20"
         style={{
-          backgroundImage: 'url("../../public/images/madielsan_Ultra-realistic_cyberpunk_cityscape_at_night_bustling_ab7acdd1-47c6-47fe-965c-e65af0729e04.png")',
+          backgroundImage: 'url("https://cdn.midjourney.com/e2d1c2a9-2945-4360-98a3-0e5633dc0853/0_1.png")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           filter: 'contrast(120%) brightness(50%)'
