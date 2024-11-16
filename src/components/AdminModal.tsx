@@ -24,15 +24,7 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose }) => {
   const [file, setFile] = useState<File | null>(null);
   const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  const loadArtworks = async () => {
-    try {
-      const fetchedArtworks = await getArtworks();
-      setArtworks(fetchedArtworks);
-    } catch (error) {
-      console.error('Error loading artworks:', error);
-    }
-  };
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthChange((user) => {
@@ -44,6 +36,15 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose }) => {
 
     return () => unsubscribe();
   }, [isOpen]);
+
+  const loadArtworks = async () => {
+    try {
+      const fetchedArtworks = await getArtworks();
+      setArtworks(fetchedArtworks);
+    } catch (error) {
+      console.error('Error loading artworks:', error);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,6 +65,7 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose }) => {
   const handleLogout = async () => {
     try {
       await signOut();
+      onClose();
     } catch (error) {
       console.error('Error signing out:', error);
     }
@@ -71,14 +73,22 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose }) => {
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
+    if (!selectedFile) return;
+
+    try {
+      setIsLoading(true);
+      setUploadError(null);
+      const url = await uploadImage(selectedFile);
+      setMediaUrl(url);
       setFile(selectedFile);
-      try {
-        const url = await uploadImage(selectedFile);
-        setMediaUrl(url);
-      } catch (error) {
-        console.error('Error uploading file:', error);
-      }
+      setMediaType(selectedFile.type.startsWith('image/') ? 'image' : 'video');
+    } catch (error) {
+      setUploadError(error instanceof Error ? error.message : 'Failed to upload file');
+      setFile(null);
+      setMediaUrl('');
+      e.target.value = '';
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -87,6 +97,7 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose }) => {
     if (!title || !description || !mediaUrl) return;
 
     try {
+      setIsLoading(true);
       await addArtwork({
         title,
         description,
@@ -101,18 +112,24 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose }) => {
       setDescription('');
       setMediaUrl('');
       setFile(null);
-      loadArtworks();
+      await loadArtworks();
     } catch (error) {
       console.error('Error adding artwork:', error);
+      setUploadError(error instanceof Error ? error.message : 'Failed to add artwork');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleDelete = async (id: string) => {
     try {
+      setIsLoading(true);
       await deleteArtwork(id);
-      loadArtworks();
+      await loadArtworks();
     } catch (error) {
       console.error('Error deleting artwork:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -165,7 +182,7 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose }) => {
               <p className="text-red-400 text-sm">{loginError}</p>
             )}
 
-            <NeonButton type="submit" className="w-full flex items-center justify-center gap-2">
+            <NeonButton type="submit" className="w-full flex items-center justify-center gap-2" disabled={isLoading}>
               <LogIn className="w-4 h-4" />
               {isLoading ? 'Logging in...' : 'Login'}
             </NeonButton>
@@ -223,6 +240,9 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose }) => {
                   accept="image/*,video/*"
                   className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
                 />
+                {uploadError && (
+                  <p className="text-red-400 text-sm mt-1">{uploadError}</p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -258,9 +278,13 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose }) => {
                 </div>
               </div>
 
-              <NeonButton type="submit" className="w-full flex items-center justify-center gap-2">
+              <NeonButton 
+                type="submit" 
+                className="w-full flex items-center justify-center gap-2"
+                disabled={isLoading || !mediaUrl}
+              >
                 <Upload className="w-4 h-4" />
-                Add Artwork
+                {isLoading ? 'Adding Artwork...' : 'Add Artwork'}
               </NeonButton>
             </form>
 
@@ -279,6 +303,7 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose }) => {
                     <button
                       onClick={() => handleDelete(artwork.id)}
                       className="p-2 text-red-400 hover:text-red-300 transition-colors"
+                      disabled={isLoading}
                     >
                       <Trash2 className="w-5 h-5" />
                     </button>

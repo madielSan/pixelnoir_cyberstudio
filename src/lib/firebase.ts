@@ -15,14 +15,14 @@ const firebaseConfig = {
   measurementId: "G-3TWL3JN2JV"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize services
 export const db = getFirestore(app);
-export const storage = getStorage(app);
+export const storage = getStorage(app, "gs://pixel-noir-cyberstudio.appspot.com");
 export const auth = getAuth(app);
 export const analytics = getAnalytics(app);
 export const functions = getFunctions(app);
+
+auth.useDeviceLanguage();
 
 export default app;
