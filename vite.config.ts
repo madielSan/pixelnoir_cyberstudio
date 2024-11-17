@@ -4,6 +4,10 @@ import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [react()],
+  define: {
+    // Permet d'éviter les erreurs liées à import.meta.env
+    "process.env": {},
+  },
   build: {
     outDir: 'dist',
     sourcemap: true,
