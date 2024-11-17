@@ -5,10 +5,10 @@ import { runFirebaseTests } from './firebaseTest';
 import './index.css';
 
 
-runFirebaseTests();
-
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
   </StrictMode>
 );
+
+runFirebaseTests();
